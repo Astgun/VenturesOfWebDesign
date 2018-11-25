@@ -23,7 +23,7 @@ namespace WebApplication1
         public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
-        public void ConfigureServices(IServiceCollection services)
+        public IServiceProvider ConfigureServices(IServiceCollection services)
         {
             services.Configure<CookiePolicyOptions>(options =>
             {
@@ -36,6 +36,7 @@ namespace WebApplication1
             services.AddReact();
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            return services.BuildServiceProvider();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -50,10 +51,13 @@ namespace WebApplication1
                 app.UseExceptionHandler("/Home/Error");
                 app.UseHsts();
             }
-
+            
+            app.UseHttpsRedirection();
             // Initialise ReactJS.NET. Must be before static files.
-            //app.UseReact(config =>
-            //{
+            app.UseReact(config =>
+            {
+                config
+                    .AddScript("~/js/Tutorial.jsx");
                 // If you want to use server-side rendering of React components,
                 // add all the necessary JavaScript files here. This includes
                 // your components as well as all of their dependencies.
@@ -69,9 +73,7 @@ namespace WebApplication1
                 //config
                 //  .SetLoadBabel(false)
                 //  .AddScriptWithoutTransform("~/Scripts/bundle.server.js");
-            //});
-
-            app.UseHttpsRedirection();
+            });
             app.UseStaticFiles();
             app.UseCookiePolicy();
 
